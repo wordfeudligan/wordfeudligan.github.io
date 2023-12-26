@@ -18,7 +18,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: script
+          repository: peterjaric/wordfeudligan
+
+      - name: Run script
+        run: |
+          cd script
+          pip install --no-cache-dir -r requirements.txt
+          bash run.sh
+          cp wordfeudligan.txt ..
+          cd ..
+
       - name: Install and Build
         run: |
           pip install rayter-generator
