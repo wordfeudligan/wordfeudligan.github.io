@@ -37,7 +37,7 @@ jobs:
           cd script
           pip install --no-cache-dir -r requirements.txt
           bash run.sh
-          cp wordfeudligan.txt ..
+          cp wordfeudligan*.txt ..
           cd ..
 
       - name: Install and build
