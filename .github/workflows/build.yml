@@ -1,5 +1,12 @@
 name: Build and Deploy
-on: [push, workflow_dispatch]
+on:
+  # Push from all branches
+  push:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  # Run at 4.27 AM every day
+  schedule:
+    - cron: "27 4 * * *"
 
 permissions:
   contents: write
@@ -19,7 +26,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install and Build
+      - name: Checkout Wordfeudligan script
+        uses: actions/checkout@v4
+        with:
+          path: script
+          repository: peterjaric/wordfeudligan
+
+      - name: Fetch current Wordfeudligan results
+        run: |
+          cd script
+          pip install --no-cache-dir -r requirements.txt
+          bash run.sh
+          cp wordfeudligan*.txt ..
+          cd ..
+
+      - name: Install and build
         run: |
           pip install --upgrade 'rayter-generator==1.*'
           rayter-generate-website --games-path . --output ./_site
@@ -37,3 +58,12 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  # Make sure the job continues to be active and runs at the scheduled time.
+  workflow-keepalive:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: liskin/gh-workflow-keepalive@v1
